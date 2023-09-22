@@ -47,5 +47,4 @@ public class HomeHelloResource {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
-
 }

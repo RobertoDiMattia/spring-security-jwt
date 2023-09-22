@@ -28,9 +28,10 @@ public class SecurityConfigurer {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
+//                        .anyRequest().permitAll() // Autorizza tutte le richieste
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());
@@ -47,3 +48,16 @@ public class SecurityConfigurer {
         return new BCryptPasswordEncoder();
     }
 }
+
+//@Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth
+//                .userDetailsService(userDetailsService())
+//                .passwordEncoder(passwordEncoder());
+//    }
+
+//    @Override
+//    @Bean
+//    public AuthenticationManager authenticationManagerBean() throws Exception {
+//        return super.authenticationManagerBean();
+//    }
