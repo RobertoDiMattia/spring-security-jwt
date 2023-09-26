@@ -18,7 +18,7 @@ public class MyUserDetailsService implements UserDetailsService {
                     .roles("USER")
                     .build();
         } else {
-            throw new UsernameNotFoundException("Utente non trovato");
+            throw new UsernameNotFoundException("User not found");
         }
     }
 }
