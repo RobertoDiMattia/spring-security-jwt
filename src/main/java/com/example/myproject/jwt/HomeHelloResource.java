@@ -31,9 +31,7 @@ public class HomeHelloResource {
     }
 
     @GetMapping("/hello")
-    public String hello() {
-        return "Hello World";
-    }
+    public String hello() {return "Hello World";}
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
@@ -41,14 +39,14 @@ public class HomeHelloResource {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUserName(), authenticationRequest.getPassword())
             );
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUserName());
+
+            String jwtToken = jwtUtil.generateToken(userDetails);
+
+            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUserName());
-
-        final String jwtToken = jwtUtil.generateToken(userDetails);
-
-        return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
     }
 }
