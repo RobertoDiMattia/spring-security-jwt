@@ -2,11 +2,13 @@ package com.example.myproject.jwt.filters;
 
 import com.example.myproject.jwt.services.MyUserDetailsService;
 import com.example.myproject.jwt.util.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,14 +22,12 @@ import java.io.IOException;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final MyUserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    public JwtRequestFilter(MyUserDetailsService userDetailsService) {
+    public JwtRequestFilter(MyUserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
     }
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -39,7 +39,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
+            try {
+                username = jwtUtil.extractUsername(jwt);
+            } catch (SignatureException | ExpiredJwtException e) {
+                handleJwtException(e, response);
+                return;
+            }
         }
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
@@ -56,4 +61,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
     }
 
+    private void handleJwtException(JwtException e, HttpServletResponse response) throws IOException {
+        // Esempio: Gestione di un errore JWT con una risposta HTTP 401 Unauthorized
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("Error JWT: " + e.getMessage());
+    }
 }

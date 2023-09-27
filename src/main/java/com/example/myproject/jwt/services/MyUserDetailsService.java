@@ -12,6 +12,7 @@ public class MyUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if ("foo".equals(username)) {
+
             return User.builder()
                     .username("foo")
                     .password("foo")
