@@ -20,9 +20,8 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if ("foo".equals(username)) {
 
-            return User.builder()
-                    .username("foo")
-                    .password("foo")
+            return User.withUsername("foo")
+                    .password(passwordEncoder.encode("foo"))
                     .roles("USER")
                     .build();
         } else {
