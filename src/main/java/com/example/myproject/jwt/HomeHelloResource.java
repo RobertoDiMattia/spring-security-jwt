@@ -35,20 +35,37 @@ public class HomeHelloResource {
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUserName(), authenticationRequest.getPassword())
             );
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUserName());
-            String jwtToken = jwtUtil.generateToken(userDetails);
-
-            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
-        } catch (BadCredentialsException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali non valide");
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Errore durante l'autenticazione: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Credenziali non valide");
         }
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUserName());
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 }
+
+//    @PostMapping("/authenticate")
+//    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUserName(), authenticationRequest.getPassword())
+//            );
+//
+//            UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUserName());
+//            String jwtToken = jwtUtil.generateToken(userDetails);
+//
+//            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
+//        } catch (BadCredentialsException e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali non valide");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Errore durante l'autenticazione: " + e.getMessage());
+//        }
+//    }
+//}
